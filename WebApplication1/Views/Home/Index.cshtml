@@ -1,0 +1,44 @@
+@model Nest.ISearchResponse<Book>
+
+<form asp-controller="Home" asp-action="Index" method="post">
+    <input type="text" name="query" />
+    <input type="submit" value="Search" />
+</form>
+
+@if (Model.Documents.Any())
+{
+    <h3>Search Results</h3>
+    <ul>
+    @foreach (var book in Model.Documents)
+    {
+        <li>Title: @book.Title (ISBN: @book.Isbn)</li>
+    }
+    </ul>
+}
+
+@if (Model.Aggregations != null)
+{
+    <h3>Aggregations</h3>
+
+    @if (Model.Aggregations.ContainsKey("pageCounts"))
+    {
+        <h4>PageCounts (Range)</h4>
+        <ul>
+        @foreach (var bucket in Model.Aggregations.Range("pageCounts").Buckets)
+        {
+            <li>@bucket.Key: @bucket.DocCount</li>
+        }
+        </ul>
+    }
+
+    @if (Model.Aggregations.ContainsKey("categories"))
+    {
+        <h4>Categories (Terms)</h4>
+        <ul>
+        @foreach (var bucket in Model.Aggregations.Terms("categories").Buckets)
+        {
+            <li>@bucket.Key: @bucket.DocCount</li>
+        }
+        </ul>
+    }
+}
